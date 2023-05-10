@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "ms-azuretools.vscode-docker",
+    "ms-vscode.vscode-typescript-next",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "christian-kohler.path-intellisense",
+    "file-icons.file-icons",
+    "dbaeumer.vscode-eslint",
+    "aaron-bond.better-comments",
+    "mhutchie.git-graph",
+    "eamodio.gitlens",
+    "ortoni.ortoni",
+    "esbenp.prettier-vscode"
+  ]
+}

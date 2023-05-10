@@ -1,0 +1,6 @@
+{
+  "baseUrl": "https://www.eltiempo.com/",
+  "env": {
+    "greeting": "Hi Dev"
+  }
+}
