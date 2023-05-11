@@ -19,14 +19,14 @@
     "cypress:open": "npx cypress open --env TEST_ENV=qa",
     "cypress:run": "npx cypress run --env TEST_ENV=qa",
     "prebrowserstack": "node ./cypress/utils/generateBrowserstackConfig.ts",
-    "browserstack": "browserstack-cypress run",
-    "hello": "echo 'hello world'"
+    "browserstack": "browserstack-cypress run"
   },
   "precommit": [
     "format:fix",
     "lint"
   ],
   "dependencies": {
+    "@cypress/grep": "^3.1.5",
     "@types/node": "18.15.12",
     "@types/react": "18.0.37",
     "@types/react-dom": "18.0.11",

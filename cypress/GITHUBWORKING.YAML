@@ -1,0 +1,68 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Run Cypress Release Regression Testing
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      isReleaseTesting:
+        description: 'Is a Release Regression Test??  If no checked, just enter the UserStory that support the test'
+        type: boolean
+      testRelease:
+        description: 'Release number'
+        type: string
+      isSpec:
+        description: 'Do you want to run only specs files? If checked, then Type of test will eb ignored'
+        type: boolean
+      specs:
+        description: 'Enter specs paths separated by comma'
+        type: string
+      isTestType:
+        description: 'Want to run an execution based in Test Type?? If no checked, run all.'     
+        type: boolean
+      testType:
+        description: 'Type of test'
+        type: choice
+        default: 'ui'
+        options:
+          - ui
+          - api
+          - accessibility
+          - mobile
+      isTestSuite:
+        description: 'Want to run an execution based in a suite like regression or smoke?? If no checked, run all.'          
+        type: boolean
+      testSuite:
+        description: 'Type of suite to execute'
+        type: choice
+        default: 'smoke'
+        options:
+          - smoke
+          - regression
+      testEnv:
+        description: 'Selects the environment'
+        required: true
+        type: choice
+        default: 'qa'
+        options:
+          - dev
+          - qa
+          - uat
+      teamsAlert:
+        description: 'Notify team?'        
+        type: boolean
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          TEST_RELEASE: ${{ github.event.inputs.testRelease }} 
+          TEST_ENV: ${{ github.event.inputs.testEnv }} 
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Running test cases in browserstack        
+        run: npm run browserstack --env TEST_ENV=$TEST_ENV

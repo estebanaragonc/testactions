@@ -16,6 +16,9 @@ module.exports = defineConfig({
     specPattern: 'cypress/tests/**/*.test.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.ts',
     setupNodeEvents(on, config) {
+      // to handle grep to run specific test cases based in '@' example @smoke, @regression, @mobile
+      require('@cypress/grep/src/plugin')(config);
+
       // to log messages to the console in runnner.
       on('task', {
         log(message) {
@@ -50,7 +53,7 @@ module.exports = defineConfig({
       // for Cypress to use it
       return config;
     },
-    experimentalRunAllSpecs: true,
-    experimentalStudio: true,
+    experimentalRunAllSpecs: true, // to enable running all spects from the cypress test runner
+    experimentalStudio: true, // to enable the recording of test cases from the cypress test runner
   },
 });

@@ -24,7 +24,10 @@ function generateProjectName() {
   const type = process.env.TEST_TYPE; // type of test:  api, ui, mobile, accessibility
   const testSuite = process.env.TEST_SUITE; // suite to execute: smoke or regression
   const environment = process.env.TEST_ENV; // environemnt of the execution: dev, qa, uat
-  let projectName = `[Varsity] [${release}] - ${type}`;
+  let projectName = `[Varsity] [${release}] `;
+  if (type) {
+    projectName += ` - ${type}`;
+  }
   if (testSuite) {
     projectName += ` - ${testSuite}`;
   }

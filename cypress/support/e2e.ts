@@ -38,7 +38,7 @@ Cypress.Commands.add('checkPageA11y', (path: any) => {
 
 /**
  * *****************************************************************
- * To handle accessibility
+ * To handle accessibility integration
  */
 const severityIndicators = {
   minor: '⚪',
@@ -83,19 +83,9 @@ function callback(violations: any) {
  * *****************************************************************
  */
 
-// Hide fetch/XHR requests from command log
-if (Cypress.config('hideXHRInCommandLog')) {
-  const app = window.top;
-
-  if (
-    app &&
-    !app.document.head.querySelector('[data-hide-command-log-request]')
-  ) {
-    const style = app.document.createElement('style');
-    style.innerHTML =
-      '.command-name-request, .command-name-xhr { display: none }';
-    style.setAttribute('data-hide-command-log-request', '');
-
-    app.document.head.appendChild(style);
-  }
-}
+/**
+ * To use grep and run only specific test marked with @ in their names.
+ * Example: @regression, @smoke, @ui, @mobile or @accessibility.
+ */
+const registerCypressGrep = require('@cypress/grep');
+registerCypressGrep();
