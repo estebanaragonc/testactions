@@ -21,6 +21,6 @@
     "incremental": true,
     "types": ["cypress", "node", "cypress-xpath"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "cypress.config.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "cypress.config.ts"],
   "exclude": ["node_modules"]
 }

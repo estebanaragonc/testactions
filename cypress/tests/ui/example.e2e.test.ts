@@ -6,7 +6,7 @@ describe('Example test', () => {
     examplePage.visit();
   });
 
-  it('check url', () => {
+  it('@regression check url', () => {
     cy.url().should('include', 'google');
   });
 

@@ -31,6 +31,7 @@
     "@types/node": "18.15.12",
     "@types/react": "18.0.37",
     "@types/react-dom": "18.0.11",
+    "axios": "^1.4.0",
     "browserstack-cypress-cli": "^1.22.1",
     "contentstack": "^3.17.1",
     "cva": "npm:class-variance-authority@^0.6.0",

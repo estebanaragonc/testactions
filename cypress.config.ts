@@ -15,13 +15,13 @@ module.exports = defineConfig({
   e2e: {
     specPattern: 'cypress/tests/**/*.test.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.ts',
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on: any, config: any) {
       // to handle grep to run specific test cases based in '@' example @smoke, @regression, @mobile
       require('@cypress/grep/src/plugin')(config);
 
       // to log messages to the console in runnner.
       on('task', {
-        log(message) {
+        log(message: any) {
           console.log(message);
           return null;
         },
@@ -29,7 +29,7 @@ module.exports = defineConfig({
 
       // to print table in terminal for accessibility
       on('task', {
-        table(message) {
+        table(message: any) {
           console.table(message);
           return null;
         },

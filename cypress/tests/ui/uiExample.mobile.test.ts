@@ -1,8 +1,8 @@
 // test.spec.js
-import { mobileViewports, ViewportConfig  } from '../../utils/mobileViewPorts';
+import { mobileViewports, ViewportConfig } from '../../utils/mobileViewPorts';
 import { ExamplePage } from '../../pages/ExamplePage';
 
-describe('@regression @smoke Check Banner Homepage', () => {
+describe('@smoke Check Banner Homepage', () => {
   const viewports = [
     { preset: 'default', description: 'Default', width: 1366, height: 768 },
     ...mobileViewports,
@@ -27,7 +27,7 @@ describe('@regression @smoke Check Banner Homepage', () => {
         cy.url().should('include', 'google');
       });
 
-      it('should have a final validation', () => {      
+      it('should have a final validation', () => {
         cy.url().should('include', 'google');
       });
     });

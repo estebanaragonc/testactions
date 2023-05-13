@@ -13,7 +13,7 @@ describe('@XYZ-123 - Example test', () => {
   it('(@ABC-123) @elvis - running elvis 2', () => {
     cy.url().should('include', 'google');
   });
-  
+
   it('(@ABC-123) @aragon - running aragon', () => {
     cy.url().should('include', 'google');
   });
@@ -22,7 +22,7 @@ describe('@XYZ-123 - Example test', () => {
     cy.url().should('include', 'google');
   });
 
-  it('(@ABC-123) @mobile - running mobile example', () => {
+  it('(@ABC-123) @smoke - running mobile example', () => {
     cy.url().should('include', 'google');
   });
 
