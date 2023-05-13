@@ -33,33 +33,33 @@ declare global {
 Cypress.Commands.add('checkPageA11y', (path: any) => {
   cy.visit(path);
   cy.injectAxe();
-  cy.checkA11y(null, null, callback);
+  cy.checkA11y(undefined, undefined, callback);
 });
 
 /**
  * *****************************************************************
  * To handle accessibility integration
  */
-const severityIndicators = {
+const severityIndicators: any = {
   minor: '⚪',
   moderate: '🟡',
   serious: '🟠',
   critical: '🔴',
 };
 function callback(violations: any) {
-  violations.forEach((violation) => {
+  violations.forEach((violation: any) => {
     const nodes = Cypress.$(
-      violation.nodes.map((node) => node.target).join(',')
+      violation.nodes.map((node: any) => node.target).join(',')
     );
 
     Cypress.log({
       name: `${severityIndicators[violation.impact]}`,
-      consoleProps: () => violation,
+      consoleProps: (): any => violation,
       $el: nodes,
       message: `[${violation.help}](${violation.helpUrl})`,
     });
 
-    violation.nodes.forEach(({ target }) => {
+    violation.nodes.forEach(({ target }: any) => {
       Cypress.log({
         name: '🔧 ',
         consoleProps: () => violation,
@@ -72,7 +72,7 @@ function callback(violations: any) {
   // to print accessibility violations in console
   cy.task(
     'table',
-    violations.map(({ id, impact, description, nodes }) => ({
+    violations.map(({ id, impact, description, nodes }: any) => ({
       impact,
       description: `${description} (${id})`,
       nodes: nodes.length,

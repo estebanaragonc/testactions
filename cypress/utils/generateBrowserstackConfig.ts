@@ -37,14 +37,32 @@ function generateProjectName() {
 
 const jsonData = {
   browsers: [
+    // to cover safari and macOs operating system
     {
+      os: 'OS X Ventura',
+      browser: 'webkit',
+      versions: ['latest'],
+    },
+    // to cover other browsers this time in windows
+    {
+      os: 'Windows 11',
       browser: 'chrome',
-      os: 'Windows 10',
+      versions: ['latest'],
+    },
+    // To cover Browsers
+    {
+      os: 'Windows 11',
+      browser: 'edge',
+      versions: ['latest'],
+    },
+    {
+      os: 'Windows 11',
+      browser: 'firefox',
       versions: ['latest'],
     },
   ],
   run_settings: {
-    cypress_config_file: './cypress.config.js',
+    cypress_config_file: './cypress.config.ts',
     project_name: 'Varsity',
     build_name: generateProjectName(),
     npm_dependencies: {
@@ -52,6 +70,7 @@ const jsonData = {
       typescript: '^5.0.4',
       'cypress-axe': '^1.4.0',
       'axe-core': '^4.0.2',
+      '@cypress/grep': '^3.1.5',
     },
     package_config_options: {},
     headless: true,
