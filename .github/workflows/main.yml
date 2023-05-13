@@ -1,0 +1,64 @@
+name: BrowserStack Test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      execution_type:
+        description: 'Execution Type'
+        required: true
+        default: 'release execution'
+        options: ['release execution', 'spec execution', 'local execution']
+      release_spec:
+        description: 'Release/Spec Path'
+        required: true
+        default: ''
+      test_type:
+        description: 'Test Type'
+        required: false
+        default: 'all'
+        options: ['all', 'ui', 'api']
+      test_suite:
+        description: 'Test Suite'
+        required: false
+        default: 'regression'
+        options: ['regression', 'smoke']
+      test_env:
+        description: 'Test Environment'
+        required: false
+        default: 'dev'
+        options: ['dev', 'qa', 'test']
+
+env:
+  TEST_RELEASE: ${{ github.event.inputs.release_spec }}
+  TEST_TYPE: ${{ github.event.inputs.test_type }}
+  TEST_SUITE: ${{ github.event.inputs.test_suite }}
+  TEST_ENV: ${{ github.event.inputs.test_env }}
+
+jobs:
+  browserstack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Cypress Tests on BrowserStack
+        run: |
+          if [ "${{ github.event.inputs.execution_type }}" == "release execution" ]; then
+            npx browserstack-cypress run --sync
+          elif [ "${{ github.event.inputs.execution_type }}" == "spec execution" ]; then
+            npx browserstack-cypress run --sync --specs "${{ github.event.inputs.release_spec }}"
+          else
+            echo "Local execution selected. Add your local execution command here."
+          fi
