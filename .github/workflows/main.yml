@@ -3,7 +3,7 @@ name: BrowserStack Test
 on:
   workflow_dispatch:
     inputs:
-      execution_type:
+      choise_option:
         description: 'Execution Type'
         required: true
         type: choice
@@ -11,9 +11,9 @@ on:
           - release execution
           - spec execution
           - local execution
-      release_spec:
+      release_string:
         description: 'Release/Spec Path'
-        required: true
+        required: false
         type: string
       test_type:
         description: 'Test Type'
@@ -28,6 +28,7 @@ on:
         required: false
         type: choice
         options:
+          - all
           - regression
           - smoke
       test_env:
@@ -40,7 +41,7 @@ on:
           - test
 
 env:
-  TEST_RELEASE: ${{ github.event.inputs.release_spec }}
+  TEST_RELEASE: ${{ github.event.inputs.release_string }}
   TEST_TYPE: ${{ github.event.inputs.test_type }}
   TEST_SUITE: ${{ github.event.inputs.test_suite }}
   TEST_ENV: ${{ github.event.inputs.test_env }}
@@ -63,10 +64,29 @@ jobs:
 
       - name: Run Cypress Tests on BrowserStack
         run: |
-          if [ "${{ github.event.inputs.execution_type }}" == "release execution" ]; then
+          if [ "${{ github.event.inputs.choise_option }}" == "release execution" ]; then
             npx browserstack-cypress run --sync
-          elif [ "${{ github.event.inputs.execution_type }}" == "spec execution" ]; then
-            npx browserstack-cypress run --sync --specs "${{ github.event.inputs.release_spec }}"
+          elif [ "${{ github.event.inputs.choise_option }}" == "spec execution" ]; then
+            npx browserstack-cypress run --sync --specs "${{ github.event.inputs.release_string }}" --env TEST_ENV=$TEST_ENV
           else
-            echo "Local execution selected. Add your local execution command here."
-          fi
+            if [ -n "${{ github.event.inputs.release_string }}" ]; then
+              npx cypress run --env TEST_ENV=$TEST_ENV --spec "$TEST_RELEASE"
+            else
+              npx cypress run --env TEST_ENV=$TEST_ENV
+            fi
+
+            if [ "${{ github.event.inputs.test_suite }}" == "regression" ]; then
+              if [ "${{ github.event.inputs.test_type }}" == "all" ]; then
+                npx cypress run --env TEST_ENV=$TEST_ENV --env grep="@regression"
+              elif [ "${{ github.event.inputs.test_type }}" == "ui" ]; then
+                npx cypress run --env TEST_ENV=$TEST_ENV --env grep="@regression"
+              elif [ "${{ github.event.inputs.test_type }}" == "api" ]; then
+                npx cypress run --env TEST_ENV=$TEST_ENV --env grep="@regression" --spec "cypress/tests/api/**/*.api.test.ts"
+              fi
+            elif [ "${{ github.event.inputs.test_suite }}" == "smoke" ]; then
+              if [ "${{ github.event.inputs.test_type }}" == "all" ]; then
+                npx cypress run --env TEST_ENV=$TEST_ENV --env grep="@smoke"
+              elif [ "${{ github.event.inputs.test_type }}" == "ui" ]; then
+                npx cypress run --env TEST_ENV=$TEST_ENV --env grep="@smoke"
+              elif [ "${{ github.event.inputs.test_type }}" == "api" ]; then
+                npx cypress run --
