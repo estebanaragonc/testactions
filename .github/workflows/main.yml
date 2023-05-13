@@ -6,27 +6,38 @@ on:
       execution_type:
         description: 'Execution Type'
         required: true
-        default: 'release execution'
-        options: ['release execution', 'spec execution', 'local execution']
+        type: choice
+        options:
+          - release execution
+          - spec execution
+          - local execution
       release_spec:
         description: 'Release/Spec Path'
         required: true
-        default: ''
+        type: string
       test_type:
         description: 'Test Type'
         required: false
-        default: 'all'
-        options: ['all', 'ui', 'api']
+        type: choice
+        options:
+          - all
+          - ui
+          - api
       test_suite:
         description: 'Test Suite'
         required: false
-        default: 'regression'
-        options: ['regression', 'smoke']
+        type: choice
+        options:
+          - regression
+          - smoke
       test_env:
         description: 'Test Environment'
         required: false
-        default: 'dev'
-        options: ['dev', 'qa', 'test']
+        type: choice
+        options:
+          - dev
+          - qa
+          - test
 
 env:
   TEST_RELEASE: ${{ github.event.inputs.release_spec }}
