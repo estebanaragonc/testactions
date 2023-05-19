@@ -1,32 +1,40 @@
-import { ExamplePage } from '../../pages/ExamplePage';
+import { mobileViewports } from '../../utils/mobileViewPorts';
+//  import { ExamplePage } from '../../pages/ExamplePage';
 
-describe('@XYZ-123 - Example test', () => {
+describe('@VEC-11 - Check Banner Homepage', () => {
+  const viewports = [
+    {
+      preset: 'default',
+      description: 'Default',
+      width: 1920,
+      height: 1080,
+    },
+    ...mobileViewports,
+  ];
+
   beforeEach(() => {
-    const examplePage = new ExamplePage();
-    examplePage.visit();
+    // const examplePage = new ExamplePage();
+    // examplePage.visit();
+    cy.visit('https://www.walmart.com/');
   });
 
-  it('(@ABC-123) @elvis - running elvis 1', () => {
-    cy.url().should('include', 'google');
-  });
+  viewports.forEach((viewport) => {
+    describe(`[${viewport.description}]`, () => {
+      beforeEach(() => {
+        cy.viewport(viewport.width, viewport.height);
+      });
 
-  it('(@ABC-123) @elvis - running elvis 2', () => {
-    cy.url().should('include', 'google');
-  });
+      it('@VEC-107 - @smoke - [Homepage - UI - Verify if there is a promo banner at the top of the page layout]', () => {
+        // cy.url().should('include', 'google');
+      });
 
-  it('(@ABC-123) @aragon - running aragon', () => {
-    cy.url().should('include', 'google');
-  });
+      it('@regression - should have another validation', () => {
+        // cy.url().should('include', 'google');
+      });
 
-  it('(@ABC-123) @regression - running regression example', () => {
-    cy.url().should('include', 'google');
-  });
-
-  it('(@ABC-123) @smoke - running mobile example', () => {
-    cy.url().should('include', 'google');
-  });
-
-  it('(@ABC-123) @accessibility - running accessibility example', () => {
-    cy.url().should('include', 'google');
+      it('should have a final validation', () => {
+        // cy.url().should('include', 'google');
+      });
+    });
   });
 });

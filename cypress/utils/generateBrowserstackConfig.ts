@@ -37,27 +37,9 @@ function generateProjectName() {
 
 const jsonData = {
   browsers: [
-    // to cover safari and macOs operating system
-    {
-      os: 'OS X Ventura',
-      browser: 'webkit',
-      versions: ['latest'],
-    },
-    // to cover other browsers this time in windows
     {
       os: 'Windows 11',
       browser: 'chrome',
-      versions: ['latest'],
-    },
-    // To cover Browsers
-    {
-      os: 'Windows 11',
-      browser: 'edge',
-      versions: ['latest'],
-    },
-    {
-      os: 'Windows 11',
-      browser: 'firefox',
       versions: ['latest'],
     },
   ],

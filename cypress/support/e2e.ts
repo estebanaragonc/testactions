@@ -1,3 +1,6 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 // ***********************************************************
 // This example support/e2e.js is processed and
 // loaded automatically before your test files.
@@ -88,4 +91,5 @@ function callback(violations: any) {
  * Example: @regression, @smoke, @ui, @mobile or @accessibility.
  */
 const registerCypressGrep = require('@cypress/grep');
+
 registerCypressGrep();

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign, no-console, import/no-dynamic-require, global-require */
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
@@ -9,10 +10,15 @@ module.exports = defineConfig({
   },
   env: {
     apiUrl: 'https://jsonplaceholder.typicode.com/',
-    mobileViewportWidthBreakpoint: 414,
     coverage: false,
   },
   e2e: {
+    // to handle junit xml reports, this is required for Xray integration
+    reporter: 'junit',
+    reporterOptions: {
+      mochaFile: 'cypress/results/results.xml',
+      toConsole: true,
+    },
     specPattern: 'cypress/tests/**/*.test.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.ts',
     setupNodeEvents(on: any, config: any) {
@@ -21,7 +27,7 @@ module.exports = defineConfig({
 
       // to log messages to the console in runnner.
       on('task', {
-        log(message: any) {
+        log(message: string) {
           console.log(message);
           return null;
         },
@@ -29,7 +35,7 @@ module.exports = defineConfig({
 
       // to print table in terminal for accessibility
       on('task', {
-        table(message: any) {
+        table(message: string) {
           console.table(message);
           return null;
         },
@@ -55,5 +61,6 @@ module.exports = defineConfig({
     },
     experimentalRunAllSpecs: true, // to enable running all spects from the cypress test runner
     experimentalStudio: true, // to enable the recording of test cases from the cypress test runner
+    experimentalWebKitSupport: true,
   },
 });

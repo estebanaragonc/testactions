@@ -1,3 +1,6 @@
+/* eslint-disable import/no-unresolved */
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 // ***********************************************************
 // This example support/component.ts is processed and
 // loaded automatically before your test files.

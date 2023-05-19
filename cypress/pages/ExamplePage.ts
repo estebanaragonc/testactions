@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable import/prefer-default-export */
 export class ExamplePage {
   /**
    * Locators for all the UI Elements. Please follow the UI Naming convention standards
@@ -29,8 +32,11 @@ export class ExamplePage {
    */
 
   private input_username = '#user-name';
+
   private input_password = "//input[@id='password']";
+
   private btn_login = '#login-button';
+
   private header_title = "//div[@class='primary_header']";
 
   /**
