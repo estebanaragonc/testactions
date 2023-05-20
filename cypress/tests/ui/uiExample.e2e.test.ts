@@ -1,7 +1,7 @@
 import { mobileViewports } from '../../utils/mobileViewPorts';
 //  import { ExamplePage } from '../../pages/ExamplePage';
 
-describe('@VEC-11 - Check Banner Homepage', () => {
+describe('@VEC-11 -  Check Banner Homepage', () => {
   const viewports = [
     {
       preset: 'default',

@@ -22,6 +22,7 @@ import 'cypress-axe';
 // Import commands.js using ES2015 syntax:
 import './commands';
 
+// globan declare to chain cypress methods.
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
@@ -31,7 +32,7 @@ declare global {
 }
 
 /**
- * Command to validate accessibility rules
+ * Command to validate accessibility rules.
  */
 Cypress.Commands.add('checkPageA11y', (path: any) => {
   cy.visit(path);
@@ -41,7 +42,7 @@ Cypress.Commands.add('checkPageA11y', (path: any) => {
 
 /**
  * *****************************************************************
- * To handle accessibility integration
+ * To handle accessibility integration.
  */
 const severityIndicators: any = {
   minor: '⚪',
@@ -72,7 +73,7 @@ function callback(violations: any) {
     });
   });
 
-  // to print accessibility violations in console
+  // to print accessibility violations in console.
   cy.task(
     'table',
     violations.map(({ id, impact, description, nodes }: any) => ({
@@ -91,5 +92,6 @@ function callback(violations: any) {
  * Example: @regression, @smoke, @ui, @mobile or @accessibility.
  */
 const registerCypressGrep = require('@cypress/grep');
-
 registerCypressGrep();
+
+

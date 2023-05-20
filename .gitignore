@@ -42,4 +42,4 @@ cypress/videos/
 results/
 log/
 browserstack.json
-
+cypress/reports

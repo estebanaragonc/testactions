@@ -16,7 +16,7 @@ module.exports = defineConfig({
     // to handle junit xml reports, this is required for Xray integration
     reporter: 'junit',
     reporterOptions: {
-      mochaFile: 'cypress/results/results.xml',
+      mochaFile: 'cypress/report/results-[hash].xml',
       toConsole: true,
     },
     specPattern: 'cypress/tests/**/*.test.{js,jsx,ts,tsx}',
