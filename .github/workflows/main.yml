@@ -1,0 +1,147 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Run Cypress Release Regression Testing
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      choise_option:
+        description: 'Execution Type - Browserstack ONLY for release(without spec path) and spec with path, others will be local execution with params.'
+        required: true
+        type: choice
+        default: select option
+        options:
+          - select option
+          - release execution
+          - spec execution
+          - local execution
+      release_string:
+        description: 'Release/Spec Path'
+        default: '-'
+        required: false
+        type: string
+      test_type:
+        description: 'Test Type'
+        required: false
+        type: choice
+        options:
+          - all
+          - ui
+          - api
+      test_suite:
+        description: 'Test Suite'
+        required: false
+        type: choice
+        options:
+          - all
+          - regression
+          - smoke
+      test_env:
+        description: 'Test Environment'
+        required: false
+        type: choice
+        default: qa
+        options:
+          - dev
+          - qa
+          - test
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CHOISE_OPTION: ${{ github.event.inputs.choise_option }}
+      TEST_RELEASE: ${{ github.event.inputs.release_string }}
+      TEST_TYPE: ${{ github.event.inputs.test_type }}
+      TEST_SUITE: ${{ github.event.inputs.test_suite }}
+      TEST_ENV: ${{ github.event.inputs.test_env }}
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      COMMAND: 'npx cypress run'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Print Workflow Variables
+        run: |
+          echo "**************************************"
+          echo "Execution type is: ${{ github.event.inputs.choise_option }}"
+          echo "Release/Spec: ${{ github.event.inputs.release_string }}"
+          echo "Test type is: ${{ github.event.inputs.test_type }}"
+          echo "Test suite is: ${{ github.event.inputs.test_suite }}"
+          echo "Test environment is: ${{ github.event.inputs.test_env }}"
+          echo "**************************************"
+      - name: Installing NPM dependencies
+        run: npm install
+      - name: Generating the BrowserStack config file
+        run: node ./cypress/utils/generateBrowserstackConfig.ts
+      - name: Run Cypress Tests on BrowserStack
+        run: |
+          # to check the mandatory field is seleted if not,  exit 1 and fail build
+          if [ "${CHOISE_OPTION}" == "select option" ]; then 
+              echo "You have not selected any Execution Type... failing workflow build with status code 1..."
+              exit 1
+          fi
+          # to check type of choise : release, spec or 
+          if [ "${CHOISE_OPTION}" == "release execution" ]; then
+              echo "Running Browserstack for release..."
+              COMMAND="./node_modules/.bin/browserstack-cypress run --sync --env TEST_ENV=${TEST_ENV}"
+          else 
+              ## stablish all the variables    
+                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "all" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV}"
+                  fi
+                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "regression" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression'"
+                  fi
+                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "smoke" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke'"
+                  fi
+                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "all" ]; then 
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --spec 'cypress/tests/**/*.ui.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "all" ]; then 
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --spec 'cypress/tests/**/*.api.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "regression" ]; then             
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression' --spec 'cypress/tests/**/*.ui.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "smoke" ]; then             
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke' --spec 'cypress/tests/**/*.ui.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "regression" ]; then             
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression' --spec 'cypress/tests/**/*.api.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "smoke" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke' --spec 'cypress/tests/**/*.api.test.ts'"
+                  fi
+                  # to check  path
+                  if [ "${TEST_RELEASE}" == "-" ]; then            
+                      COMMAND="${COMMAND}"
+                  else            
+                      COMMAND="${COMMAND} --spec 'cypress/tests/${TEST_RELEASE}'"
+                  fi
+
+              case "${CHOISE_OPTION}" in
+              "spec execution")
+                  if [ "${CHOISE_OPTION}" == "spec execution" ] && [ "${TEST_RELEASE}" == "-" ]; then
+                      echo "Spec execution without any path, then running suite locally..."
+                      COMMAND="${COMMAND}"
+                  else
+                      echo "Running Browserstack with spec file..."
+                      COMMAND="./node_modules/.bin/browserstack-cypress run --sync --spec 'cypress/tests/${TEST_RELEASE}' --env TEST_ENV=${TEST_ENV}"        
+                  fi
+              ;;
+              "local execution")
+                  if [ "${CHOISE_OPTION}" == "local execution" ] && [ "${TEST_RELEASE}" == "-" ]; then
+                      echo "Running locally without any spec...."            
+                  else
+                      echo "Running locally with spec..."                   
+                  fi
+              ;;    
+              *)
+              COMMAND="${COMMAND}"
+              ;;
+              esac
+          fi
+          # to run scripts
+          echo "Command to execute: ${COMMAND}"
+          eval "${COMMAND}"
