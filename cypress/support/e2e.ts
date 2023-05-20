@@ -93,5 +93,3 @@ function callback(violations: any) {
  */
 const registerCypressGrep = require('@cypress/grep');
 registerCypressGrep();
-
-

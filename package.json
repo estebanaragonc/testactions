@@ -19,7 +19,7 @@
     "cypress:open": "npx cypress open",
     "cypress:run": "npx cypress run",
     "prebrowserstack": "node ./cypress/utils/generateBrowserstackConfig.ts",
-    "browserstack": "browserstack-cypress run"    
+    "browserstack": "browserstack-cypress run"
   },
   "precommit": [
     "format",

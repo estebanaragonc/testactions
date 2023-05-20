@@ -1,11 +1,11 @@
 describe('@XYZ-123 -Transactions API', () => {
-  it('@api - @result This is my first api A', () => {
+  it('@api - @result - [This is my first api A]', () => {
     cy.request('GET', `${Cypress.env('apiUrl')}`).then((response) => {
       expect(response.status).to.eq(200);
     });
   });
 
-  it('@api - @result This is my second api A', () => {
+  it('@api - @result - [This is my second api A]', () => {
     cy.request('GET', `${Cypress.env('apiUrl')}`).then((response) => {
       expect(response.status).to.eq(220);
     });
