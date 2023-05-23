@@ -91,6 +91,7 @@ jobs:
             "client_id": "3E4E5F07F7794768B2709FA45C0507EC",
             "client_secret": "0bee9e14527c943122643b1ea6cc09e522a9c32b757f299e325a28de9e385c1e"
           }' "https://xray.cloud.getxray.app/api/v2/authenticate")
+          echo "${response}"
           export XRAY_BEARER_TOKEN=$response
       - name: print 
         run: echo "$XRAY_BEARER_TOKEN"
