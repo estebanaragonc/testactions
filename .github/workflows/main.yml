@@ -80,8 +80,10 @@ jobs:
         run: echo "Generating the BrowserStack config file"
       - name: Run Cypress Tests on BrowserStack
         run: echo "Cypress Tests on BrowserStack"
+      - name: ls
+        run: ls -a
       - name: Run command to generate combined.xml        
-        run: npx junit-report-merger './cypress/report/combined.xml' './build_artifacts/*/**/*.xml'
+        run: npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'
       - name: Generate XRAY Bearer Token
         if: ${{ success() }}
         run: |
