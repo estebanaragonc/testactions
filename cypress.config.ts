@@ -1,5 +1,5 @@
 const { defineConfig } = require('cypress');
-import { execSync, spawnSync } from 'child_process';
+
 import { cleanXMLReport } from 'cypress/utils/cleanXMLReport';
 import { existsSync } from 'fs';
 import * as path from 'path';
@@ -34,14 +34,8 @@ module.exports = defineConfig({
         new Promise(async (resolve) => {
           const buildArtifactsFolder = path.resolve('build_artifacts');
           if (existsSync(buildArtifactsFolder)) {
-            try {
-              execSync(
-                `npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'`,
-                { stdio: 'inherit' }
-              );
-            } catch (error) {
-              console.error('Error occurred while executing command:', error);
-            }
+            const filePath = path.resolve('./cypress/report/combined.xml');                        
+            resolve(cleanXMLReport(filePath))
           }
         });
       });

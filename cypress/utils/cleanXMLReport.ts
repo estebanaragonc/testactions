@@ -1,4 +1,3 @@
-
 import { DOMParser, XMLSerializer } from 'xmldom';
 import * as fs from 'fs';
 
@@ -8,7 +7,7 @@ export function cleanXMLReport(filePath: string): void {
   const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
 
   const testcaseElements = Array.from(xmlDoc.getElementsByTagName('testcase'));
-  console.log("elvis");
+  console.log('elvis');
   for (const testcase of testcaseElements) {
     const nameAttr = testcase.getAttribute('name');
     const classnameAttr = testcase.getAttribute('classname');

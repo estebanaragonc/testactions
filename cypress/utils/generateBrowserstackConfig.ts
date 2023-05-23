@@ -43,18 +43,18 @@ const jsonData = {
       versions: ['latest'],
     },
     {
-      "os": "Windows 11",
-      "browser": "edge",
-      "versions": ["latest"]
+      os: 'Windows 11',
+      browser: 'edge',
+      versions: ['latest'],
     },
     {
-      "os": "Windows 11",
-      "browser": "firefox",
-      "versions": ["latest"]
-    }
+      os: 'Windows 11',
+      browser: 'firefox',
+      versions: ['latest'],
+    },
   ],
   run_settings: {
-    cypress_config_file: './cypress.config.ts',    
+    cypress_config_file: './cypress.config.ts',
     project_name: 'Varsity',
     build_name: generateProjectName(),
     downloads: ['../reports', '../browserstackReport'],
@@ -64,8 +64,8 @@ const jsonData = {
       'cypress-axe': '^1.4.0',
       'axe-core': '^4.0.2',
       '@cypress/grep': '^3.1.5',
-      "xmldom": "^0.6.0",
-      "@types/xmldom": "^0.1.31"
+      xmldom: '^0.6.0',
+      '@types/xmldom': '^0.1.31',
     },
     package_config_options: {},
     headless: true,
