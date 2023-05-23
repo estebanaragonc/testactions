@@ -1,0 +1,101 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Run Cypress Release Regression Testing
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      choise_option:
+        description: 'Execution Type - Browserstack ONLY for release(without spec path) and spec with path, others will be local execution with params.'
+        required: true
+        type: choice
+        default: select option
+        options:
+          - select option
+          - release execution
+          - spec execution
+          - local execution
+      release_string:
+        description: 'Release/Spec Path'
+        default: '-'
+        required: false
+        type: string
+      release_ticket_string:
+        description: 'Release ticket'
+        default: XAR-10
+        required: false
+        type: string
+      test_type:
+        description: 'Test Type'
+        required: false
+        type: choice
+        options:
+          - all
+          - ui
+          - api
+      test_suite:
+        description: 'Test Suite'
+        required: false
+        type: choice
+        options:
+          - all
+          - regression
+          - smoke
+      test_env:
+        description: 'Test Environment'
+        required: false
+        type: choice
+        default: qa
+        options:
+          - dev
+          - qa
+          - test
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CHOISE_OPTION: ${{ github.event.inputs.choise_option }}
+      TEST_RELEASE: ${{ github.event.inputs.release_string }}
+      TEST_TYPE: ${{ github.event.inputs.test_type }}
+      TEST_SUITE: ${{ github.event.inputs.test_suite }}
+      TEST_ENV: ${{ github.event.inputs.test_env }}
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      COMMAND: 'npx cypress run'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Print Workflow Variables
+        run: |
+          echo "**************************************"
+          echo "Execution type is: ${{ github.event.inputs.choise_option }}"
+          echo "Release/Spec: ${{ github.event.inputs.release_string }}"
+          echo "Test type is: ${{ github.event.inputs.test_type }}"
+          echo "Test suite is: ${{ github.event.inputs.test_suite }}"
+          echo "Test environment is: ${{ github.event.inputs.test_env }}"
+          echo "**************************************"
+      - name: Installing NPM dependencies
+        run: npm install junit-report-merger
+      - name: Generating the BrowserStack config file
+        run: echo "Generating the BrowserStack config file"
+      - name: Run Cypress Tests on BrowserStack
+        run: echo "Cypress Tests on BrowserStack"
+      - name: ls
+        run: ls -a
+      - name: Run command to generate combined.xml        
+        run: npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'
+      - name: Generate XRAY Bearer Token
+        if: ${{ success() }}
+        run: |
+          response=$(curl -X POST -H "Content-Type: application/json" -d '{
+            "client_id": "3E4E5F07F7794768B2709FA45C0507EC",
+            "client_secret": "0bee9e14527c943122643b1ea6cc09e522a9c32b757f299e325a28de9e385c1e"
+          }' "https://xray.cloud.getxray.app/api/v2/authenticate")
+          export XRAY_BEARER_TOKEN=$response
+      - name: Import JUnit results to XRAY
+        if: ${{ success() }}
+        run: |
+          curl -X POST -H "Authorization: Bearer $XRAY_BEARER_TOKEN" -H "Content-Type: text/xml" -d "@./cypress/report/combined.xml" "https://xray.cloud.getxray.app/api/v2/import/execution/junit?projectKey=XAR&testPlanKey=${{ github.event.inputs.release_ticket_string }}"
+      - name: Print Workflow Completion
+        if: ${{ success() }}
+        run: echo "Successfully workflow ended"
