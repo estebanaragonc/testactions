@@ -22,7 +22,8 @@ on:
         required: false
         type: string
       release_ticket_string:
-        description: 'Release ticket'        
+        description: 'Release ticket'
+        default: XAR-10
         required: false
         type: string
       test_type:
@@ -74,13 +75,13 @@ jobs:
           echo "Test environment is: ${{ github.event.inputs.test_env }}"
           echo "**************************************"
       - name: Installing NPM dependencies
-        run: npm install
+        run: npm install junit-report-merger
       - name: Generating the BrowserStack config file
         run: echo "Generating the BrowserStack config file"
       - name: Run Cypress Tests on BrowserStack
         run: echo "Cypress Tests on BrowserStack"
       - name: Run command to generate combined.xml        
-        run: npx npx junit-report-merger './cypress/report/combined.xml' './build_artifacts/**/*.xml'
+        run: npx junit-report-merger './cypress/report/combined.xml' './build_artifacts/**/*.xml'
       - name: Generate XRAY Bearer Token
         if: ${{ success() }}
         run: |
