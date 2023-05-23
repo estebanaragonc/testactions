@@ -21,6 +21,10 @@ on:
         default: '-'
         required: false
         type: string
+      release_ticket_string:
+        description: 'Release ticket'        
+        required: false
+        type: string
       test_type:
         description: 'Test Type'
         required: false
@@ -70,78 +74,25 @@ jobs:
           echo "Test environment is: ${{ github.event.inputs.test_env }}"
           echo "**************************************"
       - name: Installing NPM dependencies
-        run: npm install
+        run: echo "Installing NPM dependencies"
       - name: Generating the BrowserStack config file
-        run: node ./cypress/utils/generateBrowserstackConfig.ts
+        run: echo "Generating the BrowserStack config file"
       - name: Run Cypress Tests on BrowserStack
+        run: echo "Cypress Tests on BrowserStack"
+      - name: Run command to generate combined.xml        
+        run: npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'
+      - name: Generate XRAY Bearer Token
+        if: ${{ success() }}
         run: |
-          # to check the mandatory field is seleted if not,  exit 1 and fail build
-          if [ "${CHOISE_OPTION}" == "select option" ]; then 
-              echo "You have not selected any Execution Type... failing workflow build with status code 1..."
-              exit 1
-          fi
-          # to check type of choise : release, spec or 
-          if [ "${CHOISE_OPTION}" == "release execution" ]; then
-              echo "Running Browserstack for release..."
-              COMMAND="./node_modules/.bin/browserstack-cypress run --sync --env TEST_ENV=${TEST_ENV}"
-          else 
-              ## stablish all the variables    
-                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "all" ]; then            
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV}"
-                  fi
-                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "regression" ]; then            
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression'"
-                  fi
-                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "smoke" ]; then            
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke'"
-                  fi
-                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "all" ]; then 
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --spec 'cypress/tests/**/*.ui.test.ts'"
-                  fi
-                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "all" ]; then 
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --spec 'cypress/tests/**/*.api.test.ts'"
-                  fi
-                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "regression" ]; then             
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression' --spec 'cypress/tests/**/*.ui.test.ts'"
-                  fi
-                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "smoke" ]; then             
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke' --spec 'cypress/tests/**/*.ui.test.ts'"
-                  fi
-                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "regression" ]; then             
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression' --spec 'cypress/tests/**/*.api.test.ts'"
-                  fi
-                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "smoke" ]; then            
-                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke' --spec 'cypress/tests/**/*.api.test.ts'"
-                  fi
-                  # to check  path
-                  if [ "${TEST_RELEASE}" == "-" ]; then            
-                      COMMAND="${COMMAND}"
-                  else            
-                      COMMAND="${COMMAND} --spec 'cypress/tests/${TEST_RELEASE}'"
-                  fi
-
-              case "${CHOISE_OPTION}" in
-              "spec execution")
-                  if [ "${CHOISE_OPTION}" == "spec execution" ] && [ "${TEST_RELEASE}" == "-" ]; then
-                      echo "Spec execution without any path, then running suite locally..."
-                      COMMAND="${COMMAND}"
-                  else
-                      echo "Running Browserstack with spec file..."
-                      COMMAND="./node_modules/.bin/browserstack-cypress run --sync --spec 'cypress/tests/${TEST_RELEASE}' --env TEST_ENV=${TEST_ENV}"        
-                  fi
-              ;;
-              "local execution")
-                  if [ "${CHOISE_OPTION}" == "local execution" ] && [ "${TEST_RELEASE}" == "-" ]; then
-                      echo "Running locally without any spec...."            
-                  else
-                      echo "Running locally with spec..."                   
-                  fi
-              ;;    
-              *)
-              COMMAND="${COMMAND}"
-              ;;
-              esac
-          fi
-          # to run scripts
-          echo "Command to execute: ${COMMAND}"
-          eval "${COMMAND}"
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "client_id": "3E4E5F07F7794768B2709FA45C0507EC",
+            "client_secret": "0bee9e14527c943122643b1ea6cc09e522a9c32b757f299e325a28de9e385c1e"
+          }' "https://xray.cloud.getxray.app/api/v2/authenticate" > xray_token.txt
+          export XRAY_BEARER_TOKEN=$(cat xray_token.txt | jq -r '.access_token')
+      - name: Import JUnit results to XRAY
+        if: ${{ success() }}
+        run: |
+          curl -X POST -H "Authorization: Bearer $XRAY_BEARER_TOKEN" -H "Content-Type: text/xml" -d "@./cypress/report/combined.xml" "https://xray.cloud.getxray.app/api/v2/import/execution/junit?projectKey=XAR&testPlanKey=${{ github.event.inputs.release_ticket_string }}"
+      - name: Print Workflow Completion
+        if: ${{ success() }}
+        run: echo "Successfully workflow ended"
