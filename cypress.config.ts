@@ -1,5 +1,8 @@
-/* eslint-disable no-param-reassign, no-console, import/no-dynamic-require, global-require */
 const { defineConfig } = require('cypress');
+import { execSync, spawnSync } from 'child_process';
+import { cleanXMLReport } from 'cypress/utils/cleanXMLReport';
+import { existsSync } from 'fs';
+import * as path from 'path';
 
 module.exports = defineConfig({
   component: {
@@ -25,6 +28,23 @@ module.exports = defineConfig({
       // to handle grep to run specific test cases based in '@' example @smoke, @regression, @mobile
       require('@cypress/grep/src/plugin')(config);
 
+      // to handle after run
+      on('after:run', async (results: any) => {
+        // clean the XML Report after it was combined
+        new Promise(async (resolve) => {
+          const buildArtifactsFolder = path.resolve('build_artifacts');
+          if (existsSync(buildArtifactsFolder)) {
+            try {
+              execSync(
+                `npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'`,
+                { stdio: 'inherit' }
+              );
+            } catch (error) {
+              console.error('Error occurred while executing command:', error);
+            }
+          }
+        });
+      });
       // to log messages to the console in runnner.
       on('task', {
         log(message: string) {
