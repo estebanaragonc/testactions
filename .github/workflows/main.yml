@@ -62,6 +62,7 @@ jobs:
       TEST_ENV: ${{ github.event.inputs.test_env }}
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      BEARER: ''
       COMMAND: 'npx cypress run'
     steps:
       - uses: actions/checkout@v3
@@ -93,12 +94,13 @@ jobs:
           }' "https://xray.cloud.getxray.app/api/v2/authenticate")
           echo "my bearer is : ${response}"
           export XRAY_BEARER_TOKEN=$response
+          BEARER=$response
       - name: print 
-        run: echo "in print is ${XRAY_BEARER_TOKEN}"
+        run: echo "in print is ${XRAY_BEARER_TOKEN} AND BEARER = ${BEARER} "
       - name: Import JUnit results to XRAY
         if: ${{ success() }}
         run: |
-          curl -X POST -H "Authorization: Bearer ${XRAY_BEARER_TOKEN}" -H "Content-Type: text/xml" -d "@./cypress/report/combined.xml" "https://xray.cloud.getxray.app/api/v2/import/execution/junit?projectKey=XAR&testPlanKey=${{ github.event.inputs.release_ticket_string }}"
+          curl -X POST -H "Authorization: Bearer ${BEARER}" -H "Content-Type: text/xml" -d "@./cypress/report/combined.xml" "https://xray.cloud.getxray.app/api/v2/import/execution/junit?projectKey=XAR&testPlanKey=${{ github.event.inputs.release_ticket_string }}"
       - name: Print Workflow Completion
         if: ${{ success() }}
         run: echo "Successfully workflow ended"
