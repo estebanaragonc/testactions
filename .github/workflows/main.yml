@@ -74,8 +74,8 @@ jobs:
           echo "Test environment is: ${{ github.event.inputs.test_env }}"
           echo "**************************************"
       - name: Installing NPM dependencies
-        run: echo "Installing NPM dependencies"
-      - name: npm install
+        run: npm install
+      - name: Generating the BrowserStack config file
         run: echo "Generating the BrowserStack config file"
       - name: Run Cypress Tests on BrowserStack
         run: echo "Cypress Tests on BrowserStack"
