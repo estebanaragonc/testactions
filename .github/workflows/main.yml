@@ -75,7 +75,7 @@ jobs:
           echo "**************************************"
       - name: Installing NPM dependencies
         run: echo "Installing NPM dependencies"
-      - name: Generating the BrowserStack config file
+      - name: npm install
         run: echo "Generating the BrowserStack config file"
       - name: Run Cypress Tests on BrowserStack
         run: echo "Cypress Tests on BrowserStack"
