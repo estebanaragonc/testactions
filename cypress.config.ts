@@ -34,8 +34,14 @@ module.exports = defineConfig({
         new Promise(async (resolve) => {
           const buildArtifactsFolder = path.resolve('build_artifacts');
           if (existsSync(buildArtifactsFolder)) {
-            const filePath = path.resolve('./cypress/report/combined.xml');                        
-            resolve(cleanXMLReport(filePath))
+            try {
+              const filePath = path.resolve('./cypress/report/combined.xml');
+              resolve(cleanXMLReport(filePath));
+            } catch (error) {
+              console.error(
+                '⚠ You cannot combine XML reports locally, this is not need it. Please make sure you do not have any build_artifacts folder created by Browserstack.'
+              );
+            }
           }
         });
       });

@@ -57,7 +57,7 @@ const jsonData = {
     cypress_config_file: './cypress.config.ts',
     project_name: 'Varsity',
     build_name: generateProjectName(),
-    downloads: ['../reports', '../browserstackReport'],
+    downloads: ['./cypress/report', './cypress/browserstackReport'],
     npm_dependencies: {
       cypress: '^12.10.0',
       typescript: '^5.0.4',
