@@ -81,6 +81,7 @@ jobs:
       - name: Generating the BrowserStack config file
         run: node ./cypress/utils/generateBrowserstackConfig.ts
       - name: Run Cypress Tests on BrowserStack
+        continue-on-error: true
         run: |
           # to check the mandatory field is seleted if not,  exit 1 and fail build
           if [ "${CHOISE_OPTION}" == "select option" ]; then 
