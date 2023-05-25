@@ -1,7 +1,7 @@
 const { defineConfig } = require('cypress');
 
-import { cleanXMLReport } from 'cypress/utils/cleanXMLReport';
-import { existsSync } from 'fs';
+import {traverseAndCleanXMLReports} from 'cypress/utils/cleanXMLReport';
+import fs, { existsSync } from 'fs';
 import * as path from 'path';
 
 module.exports = defineConfig({
@@ -30,20 +30,26 @@ module.exports = defineConfig({
 
       // to handle after run
       on('after:run', async (results: any) => {
-        // clean the XML Report after it was combined
-        new Promise(async (resolve) => {
-          const buildArtifactsFolder = path.resolve('build_artifacts');
+        // to clean the reports generated individually in browserstack
+
+        try {
+          const buildArtifactsFolder = path.resolve('./build_artifacts');
           if (existsSync(buildArtifactsFolder)) {
-            try {
-              const filePath = path.resolve('./cypress/report/combined.xml');
-              resolve(cleanXMLReport(filePath));
-            } catch (error) {
-              console.error(
-                '⚠ You cannot combine XML reports locally, this is not need it. Please make sure you do not have any build_artifacts folder created by Browserstack.'
-              );
-            }
+
+            const reportFolder = './build_artifacts';
+            traverseAndCleanXMLReports(reportFolder);
+            // const reportFiles = fs.readdirSync(reportFolder);
+            // reportFiles.forEach((file: any) => {
+            //   const filePath = path.join(reportFolder, file);
+            //   cleanXMLReport(filePath);
+            // });
           }
-        });
+        } catch (error) {
+          console.error(
+            '⚠ You cannot combine XML reports locally, this is not need it. Please make sure you do not have any build_artifacts folder created by Browserstack. - ' +
+              error
+          );
+        }
       });
       // to log messages to the console in runnner.
       on('task', {
