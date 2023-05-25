@@ -94,7 +94,7 @@ jobs:
               exit 1
             else
               echo "Running Browserstack for release..."
-              echo "IS_BROWSERSTACK=false" >> $GITHUB_ENV
+              echo "IS_BROWSERSTACK=true" >> $GITHUB_ENV
               COMMAND="./node_modules/.bin/browserstack-cypress run --sync --env TEST_ENV=${TEST_ENV}"              
             fi              
           else 
@@ -140,7 +140,7 @@ jobs:
                       COMMAND="${COMMAND}"
                   else
                       echo "Running Browserstack with spec file..."
-                      echo "IS_BROWSERSTACK=false" >> $GITHUB_ENV
+                      echo "IS_BROWSERSTACK=true" >> $GITHUB_ENV
                       COMMAND="./node_modules/.bin/browserstack-cypress run --sync --spec 'cypress/tests/${TEST_RELEASE}' --env TEST_ENV=${TEST_ENV}"        
                   fi
               ;;
