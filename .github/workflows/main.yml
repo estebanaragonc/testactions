@@ -90,7 +90,21 @@ jobs:
       - name: Cleaning XLM Files
         run: npx ts-node './cypress/utils/cleanXMLReport.ts'
       - name: Run command to generate combined.xml
-        if: ${{ success() && env.IS_BROWSERSTACK == 'true' }}     
+        if: ${{ success() && env.IS_BROWSERSTACK == 'true' }}
         run: npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'
-      - name: printing combined.xml
-        run: cat cypress/report/combined.xml    
+      - name: Generate XRAY Bearer Token and Import JUnit Results
+        if: ${{ success() && env.IS_BROWSERSTACK == 'true' }}  
+        run: |
+          # Step 1: Generate XRAY Bearer Token
+          response=$(curl -X POST -H "Content-Type: application/json" -d '{
+            "client_id": "${{ secrets.XRAY_CLIENT_ID }}",
+            "client_secret": "${{ secrets.XRAY_CLIENT_SECRET }}"
+          }' "https://xray.cloud.getxray.app/api/v2/authenticate")
+          token=$(echo "$response" | tr -d '"')
+          export XRAY_BEARER_TOKEN=$token
+
+          # Step 2: Import JUnit Results to XRAY
+          curl -X POST -H "Authorization: Bearer $XRAY_BEARER_TOKEN" \
+                -H "Content-Type: text/xml" \
+                -d "@./cypress/report/combined.xml" \
+                "https://xray.cloud.getxray.app/api/v2/import/execution/junit?projectKey=XAR&testPlanKey=${{ github.event.inputs.release_ticket_string }}"
