@@ -33,16 +33,10 @@ module.exports = defineConfig({
         // to clean the reports generated individually in browserstack
 
         try {
-          const buildArtifactsFolder = path.resolve('./build_artifacts');
+          const buildArtifactsFolder = path.resolve('./cypress/report');
           if (existsSync(buildArtifactsFolder)) {
-
-            const reportFolder = './build_artifacts';
+            const reportFolder = './cypress/report';
             traverseAndCleanXMLReports(reportFolder);
-            // const reportFiles = fs.readdirSync(reportFolder);
-            // reportFiles.forEach((file: any) => {
-            //   const filePath = path.join(reportFolder, file);
-            //   cleanXMLReport(filePath);
-            // });
           }
         } catch (error) {
           console.error(
