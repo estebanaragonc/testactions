@@ -28,25 +28,6 @@ module.exports = defineConfig({
       // to handle grep to run specific test cases based in '@' example @smoke, @regression, @mobile
       require('@cypress/grep/src/plugin')(config);
 
-      // to handle after run
-      on('after:run', async (results: any) => {
-        // to clean the reports generated individually in browserstack
-
-        try {
-          const buildArtifactsFolder = path.resolve('./build_artifacts');
-          console.log('1');
-          if (existsSync(buildArtifactsFolder) ) {
-            console.log('2');
-            const reportFolder = './build_artifacts';
-            traverseAndCleanXMLReports(reportFolder);
-          }
-        } catch (error) {
-          console.error(
-            '⚠ You cannot combine XML reports locally, this is not need it. Please make sure you do not have any build_artifacts folder created by Browserstack. - ' +
-              error
-          );
-        }
-      });
       // to log messages to the console in runnner.
       on('task', {
         log(message: string) {

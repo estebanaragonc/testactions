@@ -2,7 +2,7 @@ import { DOMParser, XMLSerializer } from 'xmldom';
 import fs = require('fs');
 import path = require('path');
 
-export const cleanXMLReport = (filePath: string) => {
+const cleanXMLReport = (filePath: string) => {
   const xmlData = fs.readFileSync(filePath, 'utf-8');
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
@@ -21,15 +21,18 @@ export const cleanXMLReport = (filePath: string) => {
   fs.writeFileSync(filePath, modifiedXML, 'utf-8');
 }
 
-export const traverseAndCleanXMLReports = (folderPath: string): void => {
-  const entries = fs.readdirSync(folderPath);
-  entries.forEach((entry) => {
-    const entryPath = path.join(folderPath, entry);
-    const stat = fs.statSync(entryPath);
+function traverseAndCleanXMLReports(folderPath: string): void {
+  const files = fs.readdirSync(folderPath);
+  files.forEach((file) => {
+    const filePath = path.join(folderPath, file);
+    const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      traverseAndCleanXMLReports(entryPath);
-    } else if (stat.isFile() && path.extname(entry) === '.xml') {
-      cleanXMLReport(entryPath);
+      traverseAndCleanXMLReports(filePath);
+    } else if (path.extname(filePath) === '.xml') {
+      cleanXMLReport(filePath);
     }
   });
-};
+}
+
+const baseFolder = './build_artifacts';
+traverseAndCleanXMLReports(baseFolder);
