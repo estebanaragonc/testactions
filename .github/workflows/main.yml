@@ -22,8 +22,8 @@ on:
         required: false
         type: string
       release_ticket_string:
-        description: 'Release ticket'
-        default: XAR-10
+        description: 'Release ticket (Required if release exection is selected)'
+        default: '-'     
         required: false
         type: string
       test_type:
@@ -57,13 +57,14 @@ jobs:
     env:
       CHOISE_OPTION: ${{ github.event.inputs.choise_option }}
       TEST_RELEASE: ${{ github.event.inputs.release_string }}
+      TEST_RELEASE_TICKET: ${{ github.event.inputs.release_ticket_string }}
       TEST_TYPE: ${{ github.event.inputs.test_type }}
       TEST_SUITE: ${{ github.event.inputs.test_suite }}
       TEST_ENV: ${{ github.event.inputs.test_env }}
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      IS_BROWSERSTACK: 'false'
       COMMAND: 'npx cypress run'
+      IS_BROWSERSTACK: 'false'
     steps:
       - uses: actions/checkout@v3
       - name: Print Workflow Variables
@@ -80,19 +81,93 @@ jobs:
       - name: Generating the BrowserStack config file
         run: node ./cypress/utils/generateBrowserstackConfig.ts
       - name: Run Cypress Tests on BrowserStack
-        continue-on-error: true
         run: |
-          echo "IS_BROWSERSTACK=true" >> $GITHUB_ENV
-          ./node_modules/.bin/browserstack-cypress run --sync --spec 'cypress/tests/**/*.api.test.ts' --env TEST_ENV=qa
+          # to check the mandatory field is seleted if not,  exit 1 and fail build
+          if [ "${CHOISE_OPTION}" == "select option" ]; then 
+              echo "You have not selected any Execution Type... failing workflow build with status code 1..."
+              exit 1
+          fi
+          # to check type of choise : release, spec or 
+          if [ "${CHOISE_OPTION}" == "release execution" ]; then
+            if [ "${TEST_RELEASE_TICKET}" == "-" ]; then 
+              echo "You have not entered any release ticket... You must enter a valid ticket if this is a release execution, failing workflow build with status code 1..."
+              exit 1
+            else
+              echo "Running Browserstack for release..."
+              echo "IS_BROWSERSTACK=false" >> $GITHUB_ENV
+              COMMAND="./node_modules/.bin/browserstack-cypress run --sync --env TEST_ENV=${TEST_ENV}"              
+            fi              
+          else 
+              ## stablish all the variables    
+                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "all" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV}"
+                  fi
+                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "regression" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression'"
+                  fi
+                  if [ "${TEST_TYPE}" == "all" ] && [ "${TEST_SUITE}" == "smoke" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke'"
+                  fi
+                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "all" ]; then 
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --spec 'cypress/tests/**/*.ui.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "all" ]; then 
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --spec 'cypress/tests/**/*.api.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "regression" ]; then             
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression' --spec 'cypress/tests/**/*.ui.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "ui" ] && [ "${TEST_SUITE}" == "smoke" ]; then             
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke' --spec 'cypress/tests/**/*.ui.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "regression" ]; then             
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@regression' --spec 'cypress/tests/**/*.api.test.ts'"
+                  fi
+                  if [ "${TEST_TYPE}" == "api" ] && [ "${TEST_SUITE}" == "smoke" ]; then            
+                      COMMAND="${COMMAND} --env TEST_ENV=${TEST_ENV} --env grep='@smoke' --spec 'cypress/tests/**/*.api.test.ts'"
+                  fi
+                  # to check  path
+                  if [ "${TEST_RELEASE}" == "-" ]; then            
+                      COMMAND="${COMMAND}"
+                  else            
+                      COMMAND="${COMMAND} --spec 'cypress/tests/${TEST_RELEASE}'"
+                  fi
+
+              case "${CHOISE_OPTION}" in
+              "spec execution")
+                  if [ "${CHOISE_OPTION}" == "spec execution" ] && [ "${TEST_RELEASE}" == "-" ]; then
+                      echo "Spec execution without any path, then running suite locally..."
+                      COMMAND="${COMMAND}"
+                  else
+                      echo "Running Browserstack with spec file..."
+                      echo "IS_BROWSERSTACK=false" >> $GITHUB_ENV
+                      COMMAND="./node_modules/.bin/browserstack-cypress run --sync --spec 'cypress/tests/${TEST_RELEASE}' --env TEST_ENV=${TEST_ENV}"        
+                  fi
+              ;;
+              "local execution")
+                  if [ "${CHOISE_OPTION}" == "local execution" ] && [ "${TEST_RELEASE}" == "-" ]; then
+                      echo "Running locally without any spec...."            
+                  else
+                      echo "Running locally with spec..."                   
+                  fi
+              ;;    
+              *)
+              COMMAND="${COMMAND}"
+              ;;
+              esac
+          fi
+          # to run scripts
+          echo "Command to execute: ${COMMAND}"
+          eval "${COMMAND}"
       - name: Deleting all the combined.xml generated by browserstack
         if: ${{ success() && env.IS_BROWSERSTACK == 'true' }}  
-        run : find ./build_artifacts -name 'combined.xml' -type f -exec rm -f {} + 
-      - name: Cleaning XLM Files
+        run : find ./build_artifacts -name 'combined.xml' -type f -exec rm -f {} +
+      - name: Cleaning the format of the XLM generated by BrowserStack
         run: npx ts-node './cypress/utils/cleanXMLReport.ts'
-      - name: Run command to generate combined.xml
+      - name: Run command to generate a single XML file called ./cypress/report/combined.xml
         if: ${{ success() && env.IS_BROWSERSTACK == 'true' }}
         run: npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'
-      - name: Generate XRAY Bearer Token and Import JUnit Results
+      - name: Generate XRAY Bearer Token and Import JUnit Results to Jira VEC project
         if: ${{ success() && env.IS_BROWSERSTACK == 'true' }}  
         run: |
           # Step 1: Generate XRAY Bearer Token
@@ -103,7 +178,7 @@ jobs:
           token=$(echo "$response" | tr -d '"')
           export XRAY_BEARER_TOKEN=$token
 
-          # Step 2: Import JUnit Results to XRAY
+          # Step 2: Import JUnit Results to XRAY to the VEC project
           curl -X POST -H "Authorization: Bearer $XRAY_BEARER_TOKEN" \
                 -H "Content-Type: text/xml" \
                 -d "@./cypress/report/combined.xml" \
