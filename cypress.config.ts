@@ -1,8 +1,5 @@
+/* eslint-disable */
 const { defineConfig } = require('cypress');
-
-import {traverseAndCleanXMLReports} from 'cypress/utils/cleanXMLReport';
-import fs, { existsSync } from 'fs';
-import * as path from 'path';
 
 module.exports = defineConfig({
   component: {
@@ -64,6 +61,6 @@ module.exports = defineConfig({
     },
     experimentalRunAllSpecs: true, // to enable running all spects from the cypress test runner
     experimentalStudio: true, // to enable the recording of test cases from the cypress test runner
-    experimentalWebKitSupport: true,
+    experimentalWebKitSupport: true, // to enable webkit browser -> browserstack safari
   },
 });

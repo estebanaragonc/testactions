@@ -62,7 +62,6 @@ jobs:
       TEST_ENV: ${{ github.event.inputs.test_env }}
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      BEARER: ''
       COMMAND: 'npx cypress run'
     steps:
       - uses: actions/checkout@v3
@@ -74,33 +73,13 @@ jobs:
           echo "Test type is: ${{ github.event.inputs.test_type }}"
           echo "Test suite is: ${{ github.event.inputs.test_suite }}"
           echo "Test environment is: ${{ github.event.inputs.test_env }}"
-          echo "**************************************"
-      - name: Installing NPM dependencies
-        run: npm install junit-report-merger
-      - name: Generating the BrowserStack config file
-        run: echo "Generating the BrowserStack config file"
-      - name: Run Cypress Tests on BrowserStack
-        run: echo "Cypress Tests on BrowserStack"
-      - name: ls
-        run: ls -a
-      - name: Run command to generate combined.xml        
-        run: npx jrm './cypress/report/combined.xml' './build_artifacts/**/*.xml'
+          echo "**************************************"      
       - name: Generate XRAY Bearer Token and Import JUnit Results
         if: ${{ success() }}
         run: |
-          # Step 1: Generate XRAY Bearer Token
-          response=$(curl -X POST -H "Content-Type: application/json" -d '{
-            "client_id": "${{ secrets.XRAY_CLIENT_ID }}",
-            "client_secret": "${{ secrets.XRAY_CLIENT_SECRET }}"
-          }' "https://xray.cloud.getxray.app/api/v2/authenticate")
-          token=$(echo "$response" | tr -d '"')
-          export XRAY_BEARER_TOKEN=$token
-
           # Step 2: Import JUnit Results to XRAY
-          curl -X POST -H "Authorization: Bearer $XRAY_BEARER_TOKEN" \
-               -H "Content-Type: text/xml" \
-               -d "@./cypress/report/combined.xml" \
-               "https://xray.cloud.getxray.app/api/v2/import/execution/junit?projectKey=XAR&testPlanKey=${{ github.event.inputs.release_ticket_string }}"
+          response=$(curl -X POST -H "Authorization: Bearer MDQ0OTY0ODEzMjk2Oju/zOwBQfo8PJ07TyfhhnXXgvBD" -F 'file=@"./cypress/report/combined.xml";type=text/xml' "https://jira.valtech.com/rest/raven/1.0/import/execution/junit?projectKey=VEC&testExecKey=${{ github.event.inputs.release_ticket_string }}")
+          echo $response
       - name: Print Workflow Completion
         if: ${{ success() }}
         run: echo "Successfully workflow ended"

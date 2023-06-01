@@ -1,5 +1,5 @@
-const path = require('path');
-const fs = require('fs');
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Get the absolute path of the package.json file
 const packageJsonPath = path.resolve(__dirname, '../../package.json');
@@ -37,11 +37,19 @@ function generateProjectName() {
 
 const jsonData = {
   browsers: [
+    // to cover safari and macOs operating system
+    {
+      os: 'OS X Ventura',
+      browser: 'webkit',
+      versions: ['latest'],
+    },
+    // to cover other browsers this time in windows
     {
       os: 'Windows 11',
       browser: 'chrome',
       versions: ['latest'],
     },
+    // To cover Browsers
     {
       os: 'Windows 11',
       browser: 'edge',
@@ -55,17 +63,15 @@ const jsonData = {
   ],
   run_settings: {
     cypress_config_file: './cypress.config.ts',
+    downloads: ['./cypress/report', './cypress/browserstackReport'],
     project_name: 'Varsity',
     build_name: generateProjectName(),
-    downloads: ['./cypress/report', './cypress/browserstackReport'],
     npm_dependencies: {
       cypress: '^12.10.0',
       typescript: '^5.0.4',
       'cypress-axe': '^1.4.0',
       'axe-core': '^4.0.2',
       '@cypress/grep': '^3.1.5',
-      xmldom: '^0.6.0',
-      '@types/xmldom': '^0.1.31',
     },
     package_config_options: {},
     headless: true,

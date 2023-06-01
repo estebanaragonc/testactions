@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="1.300" tests="2" failures="1">
+  <testsuite name="Root Suite" timestamp="2023-06-01T17:31:20" tests="0" file="cypress\tests\api\apiB.api.test.ts" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="@XYZ-123 -Transactions API" timestamp="2023-06-01T17:31:20" tests="2" time="1.270" failures="1">
+    <testcase name="@XYZ-123 -Transactions API @api - @result - [This is my first api B]" time="0.399" classname="@api - @result - [This is my first api B]">
+    </testcase>
+    <testcase name="@XYZ-123 -Transactions API @api - @result - [This is my second api B]" time="0.000" classname="@api - @result - [This is my second api B]">
+      <failure message="expected 200 to equal 220" type="AssertionError"><![CDATA[AssertionError: expected 200 to equal 220
+    at Context.eval (webpack:///./cypress/tests/api/apiB.api.test.ts:9:0)
+
+      + expected - actual
+
+      -200
+      +220
+      ]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

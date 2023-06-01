@@ -1,2 +1,2 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable */
 module.exports = (on: any, config: any) => {};
