@@ -96,3 +96,6 @@ jobs:
       - name: SHOULD NOT EXECUTE
         if: ${{ success() && secrets.IS_BROWSERSTACK == 'true' }}
         run: echo "Successfully workflow ended"
+      - name: Make build fail if status=failed
+        if: failure()
+        run: exit 1
