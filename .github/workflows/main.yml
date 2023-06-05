@@ -83,19 +83,7 @@ jobs:
         continue-on-error: true
         run: echo 'Run Cypress Tests on BrowserStack'
       - name: ls
-        run: ls -a
-      - name: PRINTING IS_BROWSERSTACK
-        run : echo ' CURRENT BROWSERSTACK ${IS_BROWSERSTACK}'
-      - name: CHANGING IS_BROWSERSTACK        
-        run: IS_BROWSERSTACK=true
-      - name: Generate XRAY Bearer Token and Import JUnit Results
-        if: ${{ success() && secrets.IS_BROWSERSTACK == 'true' }}
-        run: |
-          echo "is trueeee, executing"
-          IS_BROWSERSTACK=false
-      - name: SHOULD NOT EXECUTE
-        if: ${{ success() && secrets.IS_BROWSERSTACK == 'true' }}
-        run: echo "Successfully workflow ended"
+        run: ls -a      
       - name: Make build fail if status=failed
         if: failure()
         run: exit 1
